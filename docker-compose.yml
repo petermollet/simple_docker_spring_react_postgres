@@ -1,0 +1,46 @@
+version: "3.7"
+
+services:
+  # postgresql
+  db:
+    image: postgres
+    container_name: postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: testdockerpostgres
+    volumes:
+      - ./data/testdockerpostgres:/var/lib/postgresql/data
+    networks:
+      - java-network
+
+  # spring backend
+  spring:
+    image: spring
+    container_name: spring
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 9876:8080
+    depends_on:
+      - db
+    networks:
+      - java-network
+
+  # react frontend
+  react:
+    image: react
+    container_name: react
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 6173:5173
+    depends_on:
+      - spring
+    networks:
+      - java-network
+
+networks:
+  java-network:
